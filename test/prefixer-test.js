@@ -14,6 +14,7 @@ const Chrome45 = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML,
 const Chrome49 = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2454.85 Safari/537.36'
 const SeaMonkey = 'Mozilla/5.0 (Windows NT 5.2; RW; rv:7.0a1) Gecko/20091211 SeaMonkey/9.23a1pre'
 const Chromium = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/50.0.2661.102 Chrome/50.0.2661.102 Safari/537.36'
+const Chromium51 = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/51.0.2704.79 Chrome/51.0.2704.79 Safari/537.36'
 const PhantomJS = 'Mozilla/5.0 (Macintosh; Intel Mac OS X) AppleWebKit/538.1 (KHTML, like Gecko) PhantomJS/2.0.0 Safari/538.1'
 describe('Prefixing a property', () => {
   it('should only add required prefixes', () => {
@@ -52,6 +53,23 @@ describe('Prefixing 2D transforms', () => {
     expect(new Prefixer({ userAgent: MSIE10 }).prefix(input)).to.eql(input)
   })
 })
+describe('Identifying browser version', () => {
+    it('should identify chromium 50', () => {
+        const prefixer = new Prefixer({
+          userAgent: Chromium
+        })
+        expect(prefixer._browserInfo.browser).to.eql('chrome')
+        expect(prefixer._browserInfo.version).to.eql(50)
+    })
+    it('should identify chromium 51', () => {
+        const prefixer = new Prefixer({
+          userAgent: Chromium51
+        })
+        console.log(prefixer._browserInfo);
+        expect(prefixer._browserInfo.browser).to.eql('chrome')
+        expect(prefixer._browserInfo.version).to.eql(51)
+    })
+})
 describe('Running on android < 4.4', () => {
   it('should use the osversion if its the native browser to check for required props', () => {
     const andPrefixer = new Prefixer({ userAgent: Android4_4_4 })
@@ -83,6 +101,26 @@ describe('Running on iOS', () => {
     const input = { display: 'flex' }
     const output = { display: '-webkit-flex' }
     expect(iosPrefixer.prefix(input)).to.eql(output)
+  })
+})
+describe('Flexbox on new browsers', () => {
+  it('Should not be prefixed on Firefox 48 on Android 4.2.2', () => {
+    const prefixer = new Prefixer({ userAgent: Android4_2_2Firefox48 })
+    const input = { 
+        display: 'flex',
+        flexDirection: 'column',
+        flexWrap: 'nowrap',
+    }
+    expect(prefixer.prefix(input)).to.eql(input)
+  })
+  it('Should not be prefixed on Chromium 50', () => {
+    const prefixer = new Prefixer({ userAgent: Chromium })
+    const input = { 
+        display: 'flex',
+        flexDirection: 'column',
+        flexWrap: 'nowrap',
+    }
+    expect(prefixer.prefix(input)).to.eql(input)
   })
 })
 describe('Running on cordova ios <= 8.4', () => {
